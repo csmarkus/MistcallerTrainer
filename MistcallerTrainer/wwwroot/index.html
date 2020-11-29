@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>Mistcaller Practice</h1>
+    <ul id="runes"></ul>
+    <div id="result"></div>
+    <button onclick="getRunes()">Next set of Runes</button>
+    <script>
+        function getRunes() {
+            fetch("https://localhost:44368/rune")
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                var list = document.getElementById("runes");
+                var result = document.getElementById("result");
+                list.innerHTML = '';
+                result.innerHTML = '';
+                data.values.forEach(function (item, index) {
+                    var node = document.createElement("li");
+                    node.dataset.value = item.value;
+                    var textNode = document.createTextNode(item.text);
+                    node.appendChild(textNode);
+                    node.addEventListener('click', function () { checkAnswer(index + 1); }, false);
+                    list.appendChild(node);
+                });
+            });
+        }
+
+        function checkAnswer(a) {
+            var e = document.getElementById("result");
+            if (calcAnswer() == a) {
+                e.innerHTML = "correct";
+            } else {
+                e.innerHTML = "wrong";
+            }
+        }
+
+        function calcAnswer() {
+            var list = document.getElementById("runes");
+
+            var arr = ["", "", ""];
+
+            var aArr = ["1000", "0100", "0010", "0001", "0111", "1011", "1101", "1110"];
+
+            for (i = 0; i < list.childElementCount; i++) {
+                arr[0] += list.childNodes[i].dataset.value.split('')[0];
+                arr[1] += list.childNodes[i].dataset.value.split('')[1];
+                arr[2] += list.childNodes[i].dataset.value.split('')[2];
+            }
+
+            var a = 0;
+            arr.forEach(function (item) {
+                if (aArr.includes(item)) {
+                    var char = "1";
+                    var count = (item.match(/1/g)).length;
+
+                    if (count == 3) { char = "0"; }
+
+                    a = item.indexOf(char) + 1;
+                }
+            });
+
+            return a;
+        }
+
+        getRunes();
+    </script>
+</body>
+</html>
